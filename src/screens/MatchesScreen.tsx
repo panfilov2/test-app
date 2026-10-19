@@ -12,12 +12,14 @@ import { UpdatedAgo } from '../components/UpdatedAgo';
 import { FilterTabs } from '../components/FilterTabs';
 import { MatchCard } from '../components/MatchCard';
 import { MATCHES_URL } from '../config';
+import { useFavorites } from '../hooks/useFavorites';
 import type { Match, MatchesFilter, MatchesResponse } from '../types';
 import { filterMatches, sortMatches } from '../utils/matches';
 
 type LoadState = 'loading' | 'error' | 'ready';
 
 export function MatchesScreen() {
+  const { isFavorite, toggle } = useFavorites();
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [matches, setMatches] = useState<Match[]>([]);
   const [filter, setFilter] = useState<MatchesFilter>('all');
@@ -91,7 +93,13 @@ export function MatchesScreen() {
         style={styles.list}
         data={visibleMatches}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MatchCard match={item} />}
+        renderItem={({ item }) => (
+          <MatchCard
+            match={item}
+            isFavorite={isFavorite(item.id)}
+            onToggleFavorite={() => toggle(item.id)}
+          />
+        )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />
         }
